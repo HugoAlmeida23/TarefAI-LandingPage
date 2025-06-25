@@ -735,7 +735,7 @@
                                     <li>Permissões Detalhadas</li>
                                     <li>Suporte Prioritário</li>
                                 </ul>
-                                <a href="#" class="button cta-button w-button">Experimentar Premium Grátis</a>
+                                <a href="#" class="button w-button">Experimentar Premium Grátis</a>
                             </div>
                         </div>
                         <!-- Plano Empresa -->
@@ -866,6 +866,90 @@
     </script>
 
     <script src="./script.js" type="text/javascript"></script>
+    <!-- EmailJS SDK -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    
+    <!-- Popup Modal for Plan Selection -->
+    <div id="planModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Subscrever Plano</h3>
+                <button type="button" class="modal-close" onclick="closePlanModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="planForm" class="plan-form">
+                    <div class="form-group">
+                        <label for="name">Nome Completo *</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email *</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="company">Nome da Empresa *</label>
+                        <input type="text" id="company" name="company" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone">Telefone</label>
+                        <input type="tel" id="phone" name="phone">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="employees">Número de Colaboradores</label>
+                        <select id="employees" name="employees">
+                            <option value="">Selecione...</option>
+                            <option value="1-5">1-5</option>
+                            <option value="6-10">6-10</option>
+                            <option value="11-20">11-20</option>
+                            <option value="21-50">21-50</option>
+                            <option value="50+">Mais de 50</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="clients">Número de Clientes Ativos</label>
+                        <select id="clients" name="clients">
+                            <option value="">Selecione...</option>
+                            <option value="1-25">1-25</option>
+                            <option value="26-50">26-50</option>
+                            <option value="51-100">51-100</option>
+                            <option value="101-150">101-150</option>
+                            <option value="150+">Mais de 150</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="message">Mensagem (opcional)</label>
+                        <textarea id="message" name="message" rows="4" placeholder="Descreva as suas necessidades específicas..."></textarea>
+                    </div>
+                    
+                    <input type="hidden" id="selectedPlan" name="selectedPlan" value="">
+                    
+                    <div class="form-actions">
+                        <button type="button" class="button secondary" onclick="closePlanModal()">Cancelar</button>
+                        <button type="submit" class="button primary">Enviar Pedido</button>
+                    </div>
+                </form>
+                
+                <div id="formSuccess" class="form-message success" style="display: none;">
+                    <h4>✓ Pedido Enviado com Sucesso!</h4>
+                    <p>Obrigado pelo seu interesse no TarefAI. Entraremos em contacto consigo em breve para agendar uma demonstração personalizada.</p>
+                </div>
+                
+                <div id="formError" class="form-message error" style="display: none;">
+                    <h4>⚠ Erro ao Enviar</h4>
+                    <p>Ocorreu um erro ao enviar o seu pedido. Por favor, tente novamente ou contacte-nos diretamente.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="./script.js" type="text/javascript"></script>
+
 </body>
 
 </html>

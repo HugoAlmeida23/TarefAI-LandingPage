@@ -1,5 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
 
+  // --- Initialize EmailJS ---
+  // Substitua 'YOUR_PUBLIC_KEY' pela sua chave pública do EmailJS
+  emailjs.init('YOUR_PUBLIC_KEY');
+
   // --- Mobile Navigation Toggle ---
   const menuButton = document.querySelector('.menu-button');
   const navMenu = document.querySelector('.nav-menu');
@@ -76,75 +80,117 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // --- Plan Form Submission ---
+  const planForm = document.getElementById('planForm');
+  if (planForm) {
+    planForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      submitPlanForm();
+    });
+  }
+
 });
 
-// --- Inject CSS for Animations & Custom Styles ---
-// This avoids needing to modify the main CSS file and keeps the logic self-contained.
-(function() {
-  const style = document.createElement('style');
-  style.textContent = `
-    /* Initial state for elements to be animated */
-    .fade-in-on-scroll,
-    .fade-in-move-on-scroll,
-    .card-background,
-    .logo-small-container {
-      opacity: 0;
-      transition: opacity 0.8s ease-out, transform 0.8s ease-out;
-    }
+// --- Plan Modal Functions ---
+function openPlanModal(planName, planPrice) {
+  const modal = document.getElementById('planModal');
+  const modalTitle = document.getElementById('modalTitle');
+  const selectedPlan = document.getElementById('selectedPlan');
+  const form = document.getElementById('planForm');
+  const successMessage = document.getElementById('formSuccess');
+  const errorMessage = document.getElementById('formError');
+  
+  // Reset modal state
+  form.style.display = 'block';
+  successMessage.style.display = 'none';
+  errorMessage.style.display = 'none';
+  form.reset();
+  
+  // Set plan information
+  modalTitle.textContent = `Subscrever Plano ${planName}`;
+  selectedPlan.value = `${planName} - ${planPrice}`;
+  
+  // Show modal
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden'; // Prevent background scrolling
+}
 
-    .fade-in-move-on-scroll,
-    .card-background {
-      transform: translateY(30px);
-    }
-    
-    /* Visible state after intersecting */
-    .fade-in-on-scroll.is-visible,
-    .fade-in-move-on-scroll.is-visible,
-    .card-background.is-visible,
-    .logo-small-container.is-visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    
-    /* Custom styles for TarefAI branding */
-    .brand-text-logo {
-      margin: 0;
-      font-size: 1.5rem; /* 24px */
-      font-family: 'Manrope', sans-serif;
-      font-weight: 800;
-      color: #FFFFFF;
-      line-height: 1;
-    }
+function closePlanModal() {
+  const modal = document.getElementById('planModal');
+  modal.style.display = 'none';
+  document.body.style.overflow = 'auto'; // Restore scrolling
+}
 
-    .footer-logo {
-      font-size: 1.25rem; /* 20px */
-      color: #000;
-    }
+// Close modal when clicking outside
+document.addEventListener('click', function(e) {
+  const modal = document.getElementById('planModal');
+  if (e.target === modal) {
+    closePlanModal();
+  }
+});
 
-    .experience-paragraph-holder.feature-list p {
-      color: #B4BCD0;
-      font-weight: 500;
-      font-size: 1.125rem; /* 18px */
-      line-height: 1.8;
-      text-align: left;
-      width: 100%;
-      padding-left: 20px;
-    }
+// Close modal with Escape key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    closePlanModal();
+  }
+});
 
-    .button.cta-button {
-      background-color: #3b82f6; /* Blue color for primary CTA */
-      color: #ffffff;
-      padding: 16px 32px;
-      font-size: 18px;
-    }
-
-    .button.cta-button:hover {
-      background-color: #2563eb; /* Darker blue on hover */
-    }
-
-    .trusted-no.trusted-green {
-      background-image: linear-gradient(128deg, #a8e063, #56ab2f);
-    }
-  `;
-  document.head.appendChild(style);
-})();
+function submitPlanForm() {
+  const form = document.getElementById('planForm');
+  const submitButton = form.querySelector('button[type="submit"]');
+  const successMessage = document.getElementById('formSuccess');
+  const errorMessage = document.getElementById('formError');
+  
+  // Show loading state
+  const originalButtonText = submitButton.textContent;
+  submitButton.textContent = 'A Enviar...';
+  submitButton.disabled = true;
+  
+  // Collect form data
+  const formData = {
+    name: document.getElementById('name').value,
+    email: document.getElementById('email').value,
+    company: document.getElementById('company').value,
+    phone: document.getElementById('phone').value,
+    employees: document.getElementById('employees').value,
+    clients: document.getElementById('clients').value,
+    message: document.getElementById('message').value,
+    selectedPlan: document.getElementById('selectedPlan').value,
+    date: new Date().toLocaleString('pt-PT')
+  };
+  
+  // Send email using EmailJS
+  emailjs.send('service_1j10qer', 'template_c33apy7', formData)
+    .then(function(response) {
+      console.log('Email sent successfully:', response);
+      
+      // Hide form and show success message
+      form.style.display = 'none';
+      successMessage.style.display = 'block';
+      errorMessage.style.display = 'none';
+      
+      // Auto-close modal after 3 seconds
+      setTimeout(() => {
+        closePlanModal();
+      }, 3000);
+      
+    }, function(error) {
+      console.error('Email sending failed:', error);
+      
+      // Show error message
+      form.style.display = 'none';
+      successMessage.style.display = 'none';
+      errorMessage.style.display = 'block';
+      
+      // Reset button state
+      submitButton.textContent = originalButtonText;
+      submitButton.disabled = false;
+      
+      // Auto-show form again after 3 seconds
+      setTimeout(() => {
+        form.style.display = 'block';
+        errorMessage.style.display = 'none';
+      }, 3000);
+    });
+}
