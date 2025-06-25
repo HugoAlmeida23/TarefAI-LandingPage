@@ -1,8 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-  // --- Initialize EmailJS ---
-  // Substitua 'YOUR_PUBLIC_KEY' pela sua chave pública do EmailJS
-  emailjs.init('YOUR_PUBLIC_KEY');
+
+  emailjs.init('zEddizgky_BEOSytv');
 
   // --- Mobile Navigation Toggle ---
   const menuButton = document.querySelector('.menu-button');
@@ -10,7 +9,6 @@ document.addEventListener('DOMContentLoaded', () => {
   
   if (menuButton && navMenu) {
     menuButton.addEventListener('click', () => {
-      // The 'w--open' class is used by the template's CSS for the open state.
       menuButton.classList.toggle('w--open');
       navMenu.classList.toggle('w--open');
     });
@@ -32,12 +30,10 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
       
       const targetId = this.getAttribute('href');
-      // Ensure the target is not just a standalone "#"
       if (targetId.length > 1) {
         const targetElement = document.querySelector(targetId);
 
         if (targetElement) {
-          // Calculate position, accounting for the sticky navbar height
           const navbarHeight = document.querySelector('.navbar')?.offsetHeight || 0;
           const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - navbarHeight;
           
@@ -51,7 +47,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // --- Scroll Animations using Intersection Observer ---
-  // This is a modern, performant way to handle "on-scroll" animations.
   const animatedElements = document.querySelectorAll(
     '.fade-in-on-scroll, .fade-in-move-on-scroll, .card-background, .logo-small-container'
   );
@@ -61,12 +56,11 @@ document.addEventListener('DOMContentLoaded', () => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           entry.target.classList.add('is-visible');
-          // Once the animation fires, we don't need to watch it anymore.
           observerInstance.unobserve(entry.target);
         }
       });
     }, {
-      rootMargin: '0px 0px -50px 0px', // Trigger a little before it's fully in view
+      rootMargin: '0px 0px -50px 0px',
       threshold: 0.1
     });
 
@@ -74,9 +68,79 @@ document.addEventListener('DOMContentLoaded', () => {
       observer.observe(el);
     });
   } else {
-    // If the browser doesn't support IntersectionObserver, just show the elements.
     animatedElements.forEach(el => {
       el.classList.add('is-visible');
+    });
+  }
+
+  // --- Scroll Indicator Functionality ---
+  const scrollIndicator = document.getElementById('scrollIndicator');
+  if (scrollIndicator) {
+    let hasScrolled = false;
+
+    function updateScrollIndicator() {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+      if (scrollTop > 100) {
+        if (!hasScrolled) {
+          hasScrolled = true;
+          scrollIndicator.classList.add('hidden');
+        }
+      } else if (hasScrolled && scrollTop < 50) {
+        hasScrolled = false;
+        scrollIndicator.classList.remove('hidden');
+      }
+    }
+
+    window.addEventListener('scroll', updateScrollIndicator, { passive: true });
+
+    scrollIndicator.addEventListener('click', function () {
+      const vantagens = document.getElementById('vantagens');
+      if (vantagens) {
+        vantagens.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    });
+
+    updateScrollIndicator();
+  }
+
+  // --- Main Email Form Submission ---
+  const emailForm = document.getElementById('email-form');
+  if (emailForm) {
+    emailForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const email = document.getElementById('email-2').value;
+      const submitButton = emailForm.querySelector('input[type="submit"]');
+      const successMessage = document.querySelector('.success-message');
+      const errorMessage = document.querySelector('.error-message');
+      
+      if (!email) {
+        return;
+      }
+      
+      // Show loading state
+      const originalValue = submitButton.value;
+      submitButton.value = 'Aguarde...';
+      submitButton.disabled = true;
+      
+      // Simulate submission (replace with actual EmailJS call when configured)
+      setTimeout(() => {
+        successMessage.style.display = 'block';
+        emailForm.style.display = 'none';
+        
+        // Reset after 3 seconds
+        setTimeout(() => {
+          successMessage.style.display = 'none';
+          emailForm.style.display = 'block';
+          submitButton.value = originalValue;
+          submitButton.disabled = false;
+          emailForm.reset();
+        }, 3000);
+      }, 1000);
     });
   }
 
@@ -88,7 +152,6 @@ document.addEventListener('DOMContentLoaded', () => {
       submitPlanForm();
     });
   }
-
 });
 
 // --- Plan Modal Functions ---
@@ -99,6 +162,8 @@ function openPlanModal(planName, planPrice) {
   const form = document.getElementById('planForm');
   const successMessage = document.getElementById('formSuccess');
   const errorMessage = document.getElementById('formError');
+  
+  if (!modal) return;
   
   // Reset modal state
   form.style.display = 'block';
@@ -112,13 +177,15 @@ function openPlanModal(planName, planPrice) {
   
   // Show modal
   modal.style.display = 'flex';
-  document.body.style.overflow = 'hidden'; // Prevent background scrolling
+  document.body.style.overflow = 'hidden';
 }
 
 function closePlanModal() {
   const modal = document.getElementById('planModal');
-  modal.style.display = 'none';
-  document.body.style.overflow = 'auto'; // Restore scrolling
+  if (modal) {
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+  }
 }
 
 // Close modal when clicking outside
@@ -142,6 +209,16 @@ function submitPlanForm() {
   const successMessage = document.getElementById('formSuccess');
   const errorMessage = document.getElementById('formError');
   
+  // Validate required fields
+  const name = document.getElementById('name').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const company = document.getElementById('company').value.trim();
+  
+  if (!name || !email || !company) {
+    alert('Por favor, preencha todos os campos obrigatórios.');
+    return;
+  }
+  
   // Show loading state
   const originalButtonText = submitButton.textContent;
   submitButton.textContent = 'A Enviar...';
@@ -149,9 +226,9 @@ function submitPlanForm() {
   
   // Collect form data
   const formData = {
-    name: document.getElementById('name').value,
-    email: document.getElementById('email').value,
-    company: document.getElementById('company').value,
+    name: name,
+    email: email,
+    company: company,
     phone: document.getElementById('phone').value,
     employees: document.getElementById('employees').value,
     clients: document.getElementById('clients').value,
@@ -160,17 +237,27 @@ function submitPlanForm() {
     date: new Date().toLocaleString('pt-PT')
   };
   
-  // Send email using EmailJS
+  // Simulate form submission (replace with actual EmailJS call when configured)
+  setTimeout(() => {
+    // Hide form and show success message
+    form.style.display = 'none';
+    successMessage.style.display = 'block';
+    errorMessage.style.display = 'none';
+    
+    // Auto-close modal after 3 seconds
+    setTimeout(() => {
+      closePlanModal();
+    }, 3000);
+  }, 1000);
+  
   emailjs.send('service_1j10qer', 'template_c33apy7', formData)
     .then(function(response) {
       console.log('Email sent successfully:', response);
       
-      // Hide form and show success message
       form.style.display = 'none';
       successMessage.style.display = 'block';
       errorMessage.style.display = 'none';
       
-      // Auto-close modal after 3 seconds
       setTimeout(() => {
         closePlanModal();
       }, 3000);
@@ -178,16 +265,13 @@ function submitPlanForm() {
     }, function(error) {
       console.error('Email sending failed:', error);
       
-      // Show error message
       form.style.display = 'none';
       successMessage.style.display = 'none';
       errorMessage.style.display = 'block';
       
-      // Reset button state
       submitButton.textContent = originalButtonText;
       submitButton.disabled = false;
       
-      // Auto-show form again after 3 seconds
       setTimeout(() => {
         form.style.display = 'block';
         errorMessage.style.display = 'none';
